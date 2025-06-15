@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Skincare RAG Application
 
 This is a Retrieval Augmented Generation (RAG) application for skincare product recommendations.
@@ -39,3 +40,7 @@ pip install sentence-transformers
 
 - Python 3.7+
 - All dependencies listed in requirements.txt
+=======
+# RAG_app
+RAG based app skin product finder based on user requirment
+>>>>>>> 6d9ed806a2a9d8878136dd9c99a992310848d9ce
