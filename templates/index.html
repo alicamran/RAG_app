@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skincare Product Finder</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .search-container {
+            margin-bottom: 30px;
+        }
+        input[type="text"] {
+            width: 70%;
+            padding: 10px;
+            font-size: 16px;
+        }
+        button {
+            padding: 10px 15px;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .result {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .metadata {
+            font-size: 14px;
+            color: #666;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Skincare Product Finder</h1>
+    <p>Describe your skin concerns or the type of product you're looking for</p>
+    
+    <div class="search-container">
+        <form id="searchForm">
+            <input type="text" id="queryInput" placeholder="e.g., Products for dry skin with vitamin C" required>
+            <button type="submit">Search</button>
+            <select id="numResults">
+                <option value="3">3 results</option>
+                <option value="5">5 results</option>
+                <option value="10">10 results</option>
+            </select>
+        </form>
+    </div>
+    
+    <div id="results"></div>
+    
+    <script>
+        document.getElementById('searchForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const query = document.getElementById('queryInput').value;
+            const numResults = document.getElementById('numResults').value;
+            const resultsDiv = document.getElementById('results');
+            
+            resultsDiv.innerHTML = '<p>Searching...</p>';
+            
+            fetch('/search', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `query=${encodeURIComponent(query)}&num_results=${numResults}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                resultsDiv.innerHTML = '';
+                
+                if (data.error) {
+                    resultsDiv.innerHTML = `<p>Error: ${data.error}</p>`;
+                    return;
+                }
+                
+                if (data.results.length === 0) {
+                    resultsDiv.innerHTML = '<p>No products found matching your query.</p>';
+                    return;
+                }
+                
+                data.results.forEach((result, index) => {
+                    const resultDiv = document.createElement('div');
+                    resultDiv.className = 'result';
+                    
+                    resultDiv.innerHTML = `
+                        <h3>Result ${index + 1}</h3>
+                        <pre>${result.content}</pre>
+                        <div class="metadata">
+                            <strong>Product:</strong> ${result.metadata.product_name || 'N/A'}<br>
+                            <strong>Brand:</strong> ${result.metadata.brand || 'N/A'}<br>
+                            <strong>Category:</strong> ${result.metadata.category || 'N/A'}<br>
+                            <strong>Price:</strong> ${result.metadata.price || 'N/A'}<br>
+                            <strong>Skin Type:</strong> ${result.metadata.skin_type || 'N/A'}
+                        </div>
+                    `;
+                    
+                    resultsDiv.appendChild(resultDiv);
+                });
+            })
+            .catch(error => {
+                resultsDiv.innerHTML = `<p>Error: ${error.message}</p>`;
+            });
+        });
+    </script>
+</body>
+</html>
